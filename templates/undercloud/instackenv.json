@@ -1,0 +1,27 @@
+{
+  "nodes": [
+    {
+      "name": "overcloud-control01",
+      "capabilities": "profile:control",
+      "pm_addr": "REDACTED",
+      "pm_password": "REDACTED",
+      "pm_type": "pxe_ipmitool",
+      "mac": [
+        "B8:2A:72:FB:FA:0C"
+      ],
+      "pm_user": "root"
+    },
+    {
+      "name": "overcloud-compute01",
+      "capabilities": "profile:compute",
+      "pm_addr": "REDACTED",
+      "pm_password": "REDACTED",
+      "pm_type": "pxe_ipmitool",
+      "mac": [
+        "F4:8E:38:CE:FB:F6"
+      ],
+      "pm_user": "root"
+    }
+  ]
+}
+

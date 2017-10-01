@@ -1,0 +1,5 @@
+parameter_defaults:
+
+  NovaPCIPassthrough:
+        - vendor_id: "10de"
+          product_id: "15f8"

@@ -1,0 +1,8 @@
+parameter_defaults:
+# Flavor of controller and compute nodes:
+  OvercloudControlFlavor: control
+  OvercloudComputeFlavor: compute
+  
+ # Number of nodes to deploy.
+  ControllerCount: 1
+  ComputeCount: 1
