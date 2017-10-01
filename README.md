@@ -15,13 +15,13 @@ Instructions for deploying OpenStack via tripleo with Nvidia P100 GPUs exposed v
 
 
 ## Resources
-- [https://access.redhat.com/solutions/3080471] GPU support in Red Hat OpenStack Platform
-- [https://bugzilla.redhat.com/show_bug.cgi?id=1430337](Bugzilla RFE for documentation on confiuring GPUs via PCI passthrough in OpenStack Platform)
-- [https://docs.openstack.org/nova/pike/admin/pci-passthrough.html](OpenStack Nova Configure PCI Passthrough)
-- [https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Virtualization_Deployment_and_Administration_Guide/chap-Guest_virtual_machine_device_configuration.html#sect-device-GPU](KVM virtual machine GPU configuration)
-- [http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#runfile-installation](Nvidia Cuda Linux installation guide)
-- [https://access.redhat.com/solutions/1132653](DKMS support in Red Hat Enterprise Linux)
-- [http://hardysteven.blogspot.com/2016/08/tripleo-deploy-artifacts-and-puppet.html](Deploying TripleO artifacts)
+- [GPU support in Red Hat OpenStack Platform](https://access.redhat.com/solutions/3080471)
+- [Bugzilla RFE for documentation on confiuring GPUs via PCI passthrough in OpenStack Platform](https://bugzilla.redhat.com/show_bug.cgi?id=1430337)
+- [OpenStack Nova Configure PCI Passthrough](https://docs.openstack.org/nova/pike/admin/pci-passthrough.html)
+- [KVM virtual machine GPU configuration](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Virtualization_Deployment_and_Administration_Guide/chap-Guest_virtual_machine_device_configuration.html#sect-device-GPU)
+- [Nvidia Cuda Linux installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#runfile-installation)
+- [DKMS support in Red Hat Enterprise Linux](https://access.redhat.com/solutions/1132653)
+- [Deploying TripleO artifacts](http://hardysteven.blogspot.com/2016/08/tripleo-deploy-artifacts-and-puppet.html)
 
 ## Upstream OpenStack patches
 - [https://review.openstack.org/476327](https://review.openstack.org/476327): Set pci aliases on computes
