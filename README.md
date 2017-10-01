@@ -49,13 +49,85 @@ diff -y puppet-modules/nova/manifests/api.pp /etc/puppet/modules/nova/manifests/
 
 Once these patches are merged to the Red Hat OpenStack Platform release this step will not be needed.
 
+## Customize the RHEL 7.4 image
+
+Download the [RHEL 7.4 KVM guest image](https://access.redhat.com/downloads/content/69/ver=/rhel---7/7.4/x86_64/product-software) and customize it.
+
+
+```
+virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --root-password password:redhat
+virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --run-command 'subscription-manager register --username=REDACTED --password=REDACTED'
+virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --run-command 'subscription-manager attach --pool=8a85f9823e3d5e43013e3dce8ff306fd'
+virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --run-command 'subscription-manager repos --disable=*'
+virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --run-command 'subscription-manager repos --enable=rhel-7-server-rpms'
+virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --run-command 'subscription-manager repos --enable=rhel-7-server-extras-rpms'
+virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --run-command 'subscription-manager repos --enable=rhel-7-server-rh-common-rpms'
+virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --run-command 'subscription-manager repos --enable=rhel-7-server-optional-rpms'
+virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --run-command 'yum install -y kernel-devel-$(uname -r) kernel-headers-$(uname -r) gcc pciutils wget'
+virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --update
+```
+
+Upload the customized image:
+
+```
+source ~/overcloudrc
+openstack image create --disk-format qcow2 --container-format bare --public --file images/rhel-7.4-gpu.qcow2 rhel7.4-gpu
+openstack image list
+openstack keypair create stack > stack.pem
+chmod 600 stack.pem
+```
+
+Create a flavor to use the image and the device alias:
+
+```
+openstack flavor create --ram 16384 --disk 40 --vcpus 8 m1.xmedium
+
+```
+
+This repository includes Heat templates that launch an instance from the image and flavor and that automatically install the Cuda drivers and utilities.
+
+```
+source ~/overcloudrc
+openstack stack create -t templates/heat/lab8_admin.yaml lab8_admin
+sed -e 's/OS_USERNAME=admin/OS_USERNAME=user1/' -e 's/OS_PROJECT_NAME=admin/OS_PROJECT_NAME=tenant1/' -e 's/OS_PASSWORD=.\*/OS_PASSWORD=redhat/' overcloudrc > ~/user1.rc
+source ~/user1.rc
+openstack stack create -t templates/heat/lab8_user.yaml
+openstack stack resource list lab8_user
++---------------------+--------------------------------------+----------------------------+-----------------+----------------------+
+| resource_name       | physical_resource_id                 | resource_type              | resource_status | updated_time         |
++---------------------+--------------------------------------+----------------------------+-----------------+----------------------+
+| server_init         | 54574cd7-51a5-41a9-9a57-29e7eede06eb | OS::Heat::MultipartMime    | CREATE_COMPLETE | 2017-10-01T06:19:29Z |
+| server1_port        | 68360b2e-f892-4240-8f21-92b9eea85cba | OS::Neutron::Port          | CREATE_COMPLETE | 2017-10-01T06:19:29Z |
+| cuda_init           | 9d7fe1d1-4b15-4eb8-8a57-b142b3d82258 | OS::Heat::SoftwareConfig   | CREATE_COMPLETE | 2017-10-01T06:19:29Z |
+| server1             | 1dc5d97c-3986-43f3-a4e7-6eca419de0af | OS::Nova::Server           | CREATE_COMPLETE | 2017-10-01T06:19:29Z |
+| security_group      | dba31123-2d7d-4a34-9f7b-be9c3791d73a | OS::Neutron::SecurityGroup | CREATE_COMPLETE | 2017-10-01T06:19:29Z |
+| server1_floating_ip | 423e7657-b12b-4ab0-a96a-0236dd1b3c82 | OS::Neutron::FloatingIP    | CREATE_COMPLETE | 2017-10-01T06:19:29Z |
++---------------------+--------------------------------------+----------------------------+-----------------+----------------------+
+openstack server list 
++--------------------------------------+------+--------+----------------------------------------+-------------+
+| ID                                   | Name | Status | Networks                               | Image Name  |
++--------------------------------------+------+--------+----------------------------------------+-------------+
+| 1dc5d97c-3986-43f3-a4e7-6eca419de0af | vm1  | ACTIVE | internal_net=192.168.0.7, 172.16.0.212 | rhel7.4-gpu |
++--------------------------------------+------+--------+----------------------------------------+-------------+
+ssh -l cloud-user -i stack.pem 172.16.0.212 sudo lspci | grep -i nvidia
+00:06.0 3D controller: NVIDIA Corporation GP100GL [Tesla P100 PCIe 16GB] (rev a1)
+00:07.0 3D controller: NVIDIA Corporation GP100GL [Tesla P100 PCIe 16GB] (rev a1)
+ssh -l cloud-user -i stack.pem 172.16.0.212 sudo lsmod | grep -i nvidia
+nvidia_drm             44108  0 
+nvidia_modeset        841750  1 nvidia_drm
+nvidia              13000758  1 nvidia_modeset
+drm_kms_helper        159169  2 cirrus,nvidia_drm
+drm                   370825  5 ttm,drm_kms_helper,cirrus,nvidia_drm
+i2c_core               40756  4 drm,i2c_piix4,drm_kms_helper,nvidia
+
+```
+
+
 ## Running sample codes
 
 Perform the following steps to verify PCI passthrough and Cuda and properly configured.
 
 ```
-lspci | grep -i nvidia
-lsmod | grep -i nvidia
 cat /proc/driver/nvidia/version
 NVIDIA_CUDA-9.0_Samples/1_Utilities/deviceQuery/deviceQuery 
 NVIDIA_CUDA-9.0_Samples/1_Utilities/p2pBandwidthLatencyTest/p2pBandwidthLatencyTest 
