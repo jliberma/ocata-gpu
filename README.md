@@ -58,7 +58,7 @@ Download the [RHEL 7.4 KVM guest image](https://access.redhat.com/downloads/cont
 virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --root-password password:redhat
 virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --run-command 'subscription-manager register --username=REDACTED --password=REDACTED'
 virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --run-command 'subscription-manager attach --pool=8a85f9823e3d5e43013e3dce8ff306fd'
-virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --run-command 'subscription-manager repos --disable=*'
+virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --run-command 'subscription-manager repos --disable=\*'
 virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --run-command 'subscription-manager repos --enable=rhel-7-server-rpms'
 virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --run-command 'subscription-manager repos --enable=rhel-7-server-extras-rpms'
 virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --run-command 'subscription-manager repos --enable=rhel-7-server-rh-common-rpms'
@@ -84,7 +84,7 @@ openstack flavor create --ram 16384 --disk 40 --vcpus 8 m1.xmedium
 
 ```
 
-This repository includes Heat templates that launch an instance from the image and flavor and that automatically install the Cuda drivers and utilities.
+This repository includes Heat templates [[1]](templates/heat/lab8_admin.yaml)[[2]](templates/heat/lab8_user.yaml) that launch an instance from the image and flavor and that automatically install the Cuda drivers and utilities.
 
 ```
 source ~/overcloudrc
