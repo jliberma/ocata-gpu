@@ -4,10 +4,10 @@ Instructions for deploying OpenStack via tripleo with Nvidia P100 GPUs exposed v
 
 ## Basic workflow
 1. Deploy undercloud and import overcloud servers to Ironic
-2. Configure server BIOS to support IOMMU and PCI passthrough
+2. Enable IOMMU in server BIOS to support PCI passthrough
 3. Update puppet-nova to stable Ocata
 4. Deploy overcloud with templates that configure: iommu in grub, pci device aliases, pci device whitelist, and PciPassthrough filter enabled in nova.conf
-5. Create custom RHEL 7.4 image with kernel headers/devel and gcc
+5. Customize RHEL 7.4 image with kernel headers/devel and gcc
 6. Create custom Nova flavor with PCI device alias
 7. Configure cloud-init to install cuda at instance boot time
 8. Launch instance from flavor + cloud-init + image via Heat
@@ -198,7 +198,7 @@ i2c_core               40756  4 drm,i2c_piix4,drm_kms_helper,nvidia
 ```
 
 
-## Running sample codes
+## Run sample codes
 
 Perform the following steps to verify PCI passthrough and Cuda and properly configured.
 
