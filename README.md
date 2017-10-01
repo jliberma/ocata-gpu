@@ -81,7 +81,6 @@ Create a flavor to use the image and the device alias:
 
 ```
 openstack flavor create --ram 16384 --disk 40 --vcpus 8 m1.xmedium
-
 ```
 
 This repository includes Heat templates [[1]](templates/heat/lab8_admin.yaml)[[2]](templates/heat/lab8_user.yaml) that launch an instance from the image and flavor and that automatically install the Cuda drivers and utilities.
@@ -103,6 +102,11 @@ openstack stack resource list lab8_user
 | security_group      | dba31123-2d7d-4a34-9f7b-be9c3791d73a | OS::Neutron::SecurityGroup | CREATE_COMPLETE | 2017-10-01T06:19:29Z |
 | server1_floating_ip | 423e7657-b12b-4ab0-a96a-0236dd1b3c82 | OS::Neutron::FloatingIP    | CREATE_COMPLETE | 2017-10-01T06:19:29Z |
 +---------------------+--------------------------------------+----------------------------+-----------------+----------------------+
+```
+
+Verify the drivers are installed correctly:
+
+```
 openstack server list 
 +--------------------------------------+------+--------+----------------------------------------+-------------+
 | ID                                   | Name | Status | Networks                               | Image Name  |
