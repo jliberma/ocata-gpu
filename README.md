@@ -176,6 +176,27 @@ openstack stack resource list lab8_user
 +---------------------+--------------------------------------+----------------------------+-----------------+----------------------+
 ```
 
+The Cuda drivers and utilities are installed by the follwing OS::Heat::SoftwareConfig resource:
+
+```
+  cuda_init:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config: |
+        #!/bin/bash
+        echo "installing repos" > /tmp/cuda_init.log
+        rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        rpm -ivh https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-repo-rhel7-8.0.61-1.x86_64.rpm
+        echo "installing cuda and samples" >> /tmp/cuda_init.log
+        yum install -y cuda && /usr/local/cuda-9.0/bin/cuda-install-samples-9.0.sh /home/cloud-user
+        echo "building cuda samples" >> /tmp/cuda_init.log
+        make -j $(grep -c Skylake /proc/cpuinfo) -C /home/cloud-user/NVIDIA_CUDA-9.0_Samples -Wno-deprecated-gpu-targets
+        shutdown -r now
+```
+
+Please note that Cuda is a proprietary driver that requires DKMS to build the kernel modules. DKMS is available from EPEL. Neither the Cuda drivers nor DKMS are supported by Red Hat.[[3]](https://access.redhat.com/solutions/1132653)[[4]](https://access.redhat.com/solutions/3080471)
+
+
 Verify the drivers are installed correctly:
 
 ```
