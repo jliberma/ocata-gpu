@@ -49,6 +49,78 @@ diff -y puppet-modules/nova/manifests/api.pp /etc/puppet/modules/nova/manifests/
 
 Once these patches are merged to the Red Hat OpenStack Platform release this step will not be needed.
 
+
+## Create TripleO environment files
+
+Create TripleO environment files to configure nova.conf on the overcloud nodes running nova-compute and nova-scheduler.
+
+```
+cat templates/environments/20-compute-params.yaml 
+parameter_defaults:
+
+  NovaPCIPassthrough:
+        - vendor_id: "10de"
+          product_id: "15f8"
+
+cat templates/environments/20-controller-params.yaml 
+parameter_defaults:
+
+  NovaSchedulerDefaultFilters: ['AvailabilityZoneFilter','RamFilter','ComputeFilter','ComputeCapabilitiesFilter','ImagePropertiesFilter','ServerGroupAntiAffinityFilter','ServerGroupAffinityFilter', 'PciPassthroughFilter', 'NUMATopologyFilter', 'AggregateInstanceExtraSpecsFilter']
+
+  ControllerExtraConfig:
+    nova::api::pci_alias:
+      -  name: a1
+         product_id: '15f8'
+         vendor_id: '10de'
+      -  name: a2
+         product_id: '15f8'
+         vendor_id: '10de'
+
+```
+
+In the above example, the controller node aliases two P100 cards with the names *a1* and *a2*. Depending on the flavor, either or both cards can be assigned to an instance.
+
+iommu must be enabled at boot time on the compute nodes as well. This is accomplished through a the firstboot extraconfig hook.
+
+```
+cat templates/environments/10-firstboot-environment.yaml 
+resource_registry:
+  OS::TripleO::NodeUserData: /home/stack/templates/firstboot/first-boot.yaml
+
+cat templates/firstboot/first-boot.yaml 
+heat_template_version: 2014-10-16
+
+
+resources:
+  userdata:
+    type: OS::Heat::MultipartMime
+    properties:
+      parts:
+      - config: {get_resource: compute_kernel_args}
+
+
+  # Verify the logs on /var/log/cloud-init.log on the overcloud node
+  compute_kernel_args:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config: |
+        #!/bin/bash
+        set -x
+
+        # Set grub parameters
+        if hostname | grep compute >/dev/null
+        then
+                sed -i.orig 's/quiet"$/quiet intel_iommu=on iommu=pt"/' /etc/default/grub
+                grub2-mkconfig -o /etc/grub2.cfg
+                systemctl stop os-collect-config.service
+                /sbin/reboot
+        fi
+
+outputs:
+  OS::stack_id:
+    value: {get_resource: userdata}
+```
+
 ## Customize the RHEL 7.4 image
 
 Download the [RHEL 7.4 KVM guest image](https://access.redhat.com/downloads/content/69/ver=/rhel---7/7.4/x86_64/product-software) and customize it.
@@ -123,7 +195,6 @@ nvidia              13000758  1 nvidia_modeset
 drm_kms_helper        159169  2 cirrus,nvidia_drm
 drm                   370825  5 ttm,drm_kms_helper,cirrus,nvidia_drm
 i2c_core               40756  4 drm,i2c_piix4,drm_kms_helper,nvidia
-
 ```
 
 
