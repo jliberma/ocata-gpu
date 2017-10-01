@@ -23,7 +23,42 @@ Instructions for deploying OpenStack via tripleo with Nvidia P100 GPUs exposed v
 - [DKMS support in Red Hat Enterprise Linux](https://access.redhat.com/solutions/1132653)
 - [Deploying TripleO artifacts](http://hardysteven.blogspot.com/2016/08/tripleo-deploy-artifacts-and-puppet.html)
 
-## Upstream OpenStack patches
+
+## Update puppet-nova to ocata stable
+
+At the time of writing, we need to update puppet-nova to the latest version on the stable Ocata branch in order to consume the following fixes:
+
 - [https://review.openstack.org/476327](https://review.openstack.org/476327): Set pci aliases on computes
 - [https://review.openstack.org/482033](https://review.openstack.org/482033): Set pci/alias and pci/passthrough_whitelist instead of DEFAULT/pci_alias and DEFAULT/pci_passthrough_whitelist
 - [https://review.openstack.org/494189](https://review.openstack.org/494189): Handle multiple pci aliases/whitelist options
+
+Use the TripleO artifacts facility to update puppet-nova prior to running overcloud deploy. [TripleO artifacts](http://hardysteven.blogspot.com/2016/08/tripleo-deploy-artifacts-and-puppet.html) are described in this excellent blog post by Heat developer Steve Hardy.
+
+```
+source stackrc
+mkdir puppet-modules
+cd puppet-modules
+git clone git://git.openstack.org/openstack/puppet-nova -b stable/ocata nova
+ls nova
+cd ..
+upload-puppet-modules -d puppet-modules
+swift list overcloud-artifacts
+cat /home/stack/.tripleo/environments/puppet-modules-url.yaml 
+diff -y puppet-modules/nova/manifests/api.pp /etc/puppet/modules/nova/manifests/api.pp --suppress-common-lines
+```
+
+Once these patches are merged to the Red Hat OpenStack Platform release this step will not be needed.
+
+## Running sample codes
+
+Perform the following steps to verify PCI passthrough and Cuda and properly configured.
+
+```
+lspci | grep -i nvidia
+lsmod | grep -i nvidia
+cat /proc/driver/nvidia/version
+NVIDIA_CUDA-9.0_Samples/1_Utilities/deviceQuery/deviceQuery 
+NVIDIA_CUDA-9.0_Samples/1_Utilities/p2pBandwidthLatencyTest/p2pBandwidthLatencyTest 
+NVIDIA_CUDA-9.0_Samples/1_Utilities/bandwidthTest/bandwidthTest
+```
+Manual instructions for installing Cuda drivers and utilities are found in the [Nvidia Cuda Linux installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#runfile-installation).
