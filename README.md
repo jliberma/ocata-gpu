@@ -80,6 +80,18 @@ parameter_defaults:
 
 In the above example, the controller node aliases two P100 cards with the names *a1* and *a2*. Depending on the flavor, either or both cards can be assigned to an instance.
 
+The environment files require the vendor ID and product ID for each passthrough device type. You can find these by running **lspci** on the physical server with the PCI cards.
+
+```
+# lspci -nn | grep -i nvidia
+04:00.0 3D controller [0302]: NVIDIA Corporation GP100GL [Tesla P100 PCIe 16GB] [10de:15f8] (rev a1)
+84:00.0 3D controller [0302]: NVIDIA Corporation GP100GL [Tesla P100 PCIe 16GB] [10de:15f8] (rev a1)
+```
+
+The vendor ID is the first 4 digit hexadecimal number following the device name. The product ID is the second.
+
+lspci is installed by the **pciutils** package.
+
 iommu must be enabled at boot time on the compute nodes as well. This is accomplished through a the firstboot extraconfig hook.
 
 ```
