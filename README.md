@@ -161,13 +161,39 @@ openstack keypair create stack > stack.pem
 chmod 600 stack.pem
 ```
 
-Create a flavor to use the image and the device alias:
+### Create a flavor
+
+### Create a flavor to use the image and the device alias:
 
 ```
 openstack flavor create --ram 16384 --disk 40 --vcpus 8 m1.xmedium
 ```
 
-This repository includes Heat templates [[1]](templates/heat/lab8_admin.yaml)[[2]](templates/heat/lab8_user.yaml) that launch an instance from the image and flavor and that automatically install the Cuda drivers and utilities.
+Configure the flavor to request one or more PCI devices by alias:
+
+```
+$ openstack flavor set m1.xmedium --property "pci_passthrough:alias"="a1:2"
+$ openstack flavor show m1.xmedium | grep pci
+| properties                 | pci_passthrough:alias='a1:2'         |
+```
+
+Note that this association is made through the [lab8_admin](templates/heat/lab8_admin.yaml) Heat template in our example templates:
+
+```
+  instance_flavor1:
+    type: OS::Nova::Flavor
+    properties:
+      ephemeral: 40
+      is_public: true
+      name: m1.xmedium
+      ram: 16384
+      vcpus: 8
+      extra_specs: { "pci_passthrough:alias": "a1:2" }
+```
+
+### Configure Cuda drivers and utilities
+
+This repository includes also Heat templates [[1]](templates/heat/lab8_admin.yaml)[[2]](templates/heat/lab8_user.yaml) that launch an instance from the image and flavor and that automatically install the Cuda drivers and utilities.
 
 ```
 source ~/overcloudrc
