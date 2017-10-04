@@ -219,8 +219,8 @@ openstack server create --flavor m1.xmedium --key-name stack --image rhel7.4-gpu
 To access the instance, associate a floating IP with its tenant network port then SSH to it as cloud-user, specifying the public key pair:
 
 ```
-$ ssh -l cloud-user -i stack.pem 172.16.0.212 sudo lspci | grep -i nvidia
-00:06.0 3D controller: NVIDIA Corporation GP100GL [Tesla P100 PCIe 16GB] (rev a1)
+$ ssh -l cloud-user -i stack.pem 172.16.0.212 uptime
+16:57:09 up 3 days, 14:27,  0 users,  load average: 0.00, 0.01, 0.03
 00:07.0 3D controller: NVIDIA Corporation GP100GL [Tesla P100 PCIe 16GB] (rev a1)
 ```
 
