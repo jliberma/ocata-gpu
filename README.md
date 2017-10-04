@@ -163,7 +163,7 @@ chmod 600 stack.pem
 
 ### Create a flavor
 
-### Create a flavor to use the image and the device alias:
+Create a flavor to use the image and the device alias:
 
 ```
 openstack flavor create --ram 16384 --disk 40 --vcpus 8 m1.xmedium
