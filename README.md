@@ -161,7 +161,7 @@ openstack keypair create stack > stack.pem
 chmod 600 stack.pem
 ```
 
-### Create a flavor
+### Create a flavor and launch an instance
 
 Create a flavor to use the image and the device alias:
 
@@ -189,6 +189,39 @@ Note that this association is made through the [lab8_admin](templates/heat/lab8_
       ram: 16384
       vcpus: 8
       extra_specs: { "pci_passthrough:alias": "a1:2" }
+```
+
+The [lab8_user](templates/heat/lab8_user.yaml) Heat template launches an instance from the flavor.
+
+```
+  server1:
+    type: OS::Nova::Server
+    properties:
+      name: { get_param: server1_name }
+      image: rhel7.4-gpu
+      flavor: m1.xmedium
+      key_name:  { get_param: tenant_key_name }
+      networks:
+        - port: { get_resource: server1_port }
+      user_data_format: RAW
+      user_data:
+        get_resource: server_init
+
+```
+
+Here is an example command to manually launch the instance:
+
+```
+openstack server create --flavor m1.xmedium --key-name stack --image rhel7.4-gpu gpu-test2
+
+```
+
+To access the instance, associate a floating IP with its tenant network port then SSH to it as cloud-user, specifying the public key pair:
+
+```
+$ ssh -l cloud-user -i stack.pem 172.16.0.212 sudo lspci | grep -i nvidia
+00:06.0 3D controller: NVIDIA Corporation GP100GL [Tesla P100 PCIe 16GB] (rev a1)
+00:07.0 3D controller: NVIDIA Corporation GP100GL [Tesla P100 PCIe 16GB] (rev a1)
 ```
 
 ### Configure Cuda drivers and utilities
