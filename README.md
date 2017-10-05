@@ -2,6 +2,8 @@
 
 Instructions for deploying OpenStack via tripleo with Nvidia P100 GPUs exposed via PCI passthrough.
 
+These steps were tested in collaboration with the Dell High Performance Computing lab who generously provided access to the hardware.
+
 ## Basic workflow
 1. Deploy undercloud and import overcloud servers to Ironic
 2. Enable IOMMU in server BIOS to support PCI passthrough
