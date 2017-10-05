@@ -68,7 +68,7 @@ resources:
     properties:
       name: { get_param: server1_name }
       image: rhel7.4-gpu
-      flavor: m1.xmedium
+      flavor: m1.xall
       key_name:  { get_param: tenant_key_name }
       networks:
         - port: { get_resource: server1_port }
