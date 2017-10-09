@@ -22,8 +22,6 @@ virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --update
 source ~/overcloudrc
 openstack image create --disk-format qcow2 --container-format bare --public --file images/rhel-7.4-gpu.qcow2 rhel7.4-gpu
 openstack image list
-openstack keypair create stack > stack.pem
-chmod 600 stack.pem
 
 # deploy the admin stack (creates project, user, networks)
 openstack stack create -t templates/heat/lab8_admin.yaml lab8_admin
@@ -31,4 +29,6 @@ openstack stack create -t templates/heat/lab8_admin.yaml lab8_admin
 # deploy the project stack (launches instance, installs cuda via OS::Heat::SoftwareConfig)
 sed -e 's/OS_USERNAME=admin/OS_USERNAME=user1/' -e 's/OS_PROJECT_NAME=admin/OS_PROJECT_NAME=tenant1/' -e 's/OS_PASSWORD=.*/OS_PASSWORD=redhat/' overcloudrc > ~/user1.rc
 source ~/user1.rc
-openstack stack create -t templates/heat/lab8_user.yaml
+openstack keypair create stack > stack.pem
+chmod 600 stack.pem
+openstack stack create -t templates/heat/lab8_user.yaml lab8_user

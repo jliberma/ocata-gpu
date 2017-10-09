@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-openstack overcloud deploy --timeout=90 \
+exec openstack overcloud deploy --timeout=90 \
 	  --templates \
           --ntp-server 128.138.140.44 \
 	  -e /home/stack/templates/node-info.yaml \
