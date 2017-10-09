@@ -22,6 +22,7 @@ virt-customize --selinux-relabel -a images/rhel-7.4-gpu.qcow2 --update
 source ~/overcloudrc
 openstack image create --disk-format qcow2 --container-format bare --public --file images/rhel-7.4-gpu.qcow2 rhel7.4-gpu
 openstack image list
+openstack quota set --cores 28 --ram 131072 tenant1
 
 # deploy the admin stack (creates project, user, networks)
 openstack stack create -t templates/heat/lab8_admin.yaml lab8_admin
